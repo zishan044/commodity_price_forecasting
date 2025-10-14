@@ -28,3 +28,6 @@ attr = "commodity_price_forecasting.__version__"
 [tool.setuptools.packages.find]
 where = [ "src",]
 namespaces = false
+
+[tool.kedro_telemetry]
+project_id = "1bcc1a0a2b7c4c73a5c9fa0f42103d51"
