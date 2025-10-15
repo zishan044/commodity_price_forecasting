@@ -7,16 +7,22 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
-def extract_date_from_filename(filename: Path) -> str | None:
-    match = re.match(r"(\d{4}-\d{2}-\d{2})", filename.stem)
-    if match:
-        return match.group(1)
-    return None
-
-
 def process_tcb_file(file_path: Path) -> pd.DataFrame:
     try:
-        df_raw = pd.read_excel(file_path, header=None)
+        df_raw = pd.read_excel(file_path, header=None, engine="openpyxl")
+
+        date_col = df_raw.iloc[:, 11]
+        non_null_dates = date_col.dropna()
+        date = None
+        
+        if not non_null_dates.empty:
+            date_value = non_null_dates.iloc[0]
+            try:
+                date = pd.to_datetime(date_value).strftime('%Y-%m-%d')
+            except (ValueError, TypeError):
+                return pd.DataFrame()
+        else:
+            return pd.DataFrame()
 
         start_idx: int | None = None
         end_idx: int | None = None
@@ -53,12 +59,13 @@ def process_tcb_file(file_path: Path) -> pd.DataFrame:
 
         current_category: str | None = None
         extracted_data: list[dict[str, str | None]] = []
-
+        
         for idx, row in df_section.iterrows():
             col1 = str(row[0]).strip() if pd.notna(row[0]) else ""
             col2 = str(row[1]).strip() if pd.notna(row[1]) else ""
             col3 = str(row[2]).strip() if pd.notna(row[2]) else ""
             col4 = str(row[3]).strip() if pd.notna(row[3]) else ""
+
 
             if col1 in categories and (not col2 or col2 == "nan"):
                 current_category = col1
@@ -85,8 +92,6 @@ def process_tcb_file(file_path: Path) -> pd.DataFrame:
 
                 if "=" in str(col3) or "=" in str(col4):
                     continue
-
-                date = extract_date_from_filename(file_path)
 
                 item_data: dict[str, str | None] = {
                     "date": date,
