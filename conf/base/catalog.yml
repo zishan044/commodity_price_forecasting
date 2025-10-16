@@ -1,3 +1,7 @@
 raw_data:
   type: pandas.ParquetDataset
   filepath: data/01_raw/raw_data.pq
+
+clean_data:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/clean_data.pq
