@@ -5,3 +5,7 @@ kedro~=1.0.0
 kedro-datasets[pandas]
 pandas
 openpyxl
+scikit-learn
+statsmodels
+numpy
+matplotlib
